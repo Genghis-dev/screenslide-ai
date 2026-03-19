@@ -148,7 +148,26 @@ export default function ComponentCard({ component, onGenerate, onRegenerate, gen
   );
 }
 
-function buildPreviewHTML(code, cssVars) {
+// Strip imports and transform "export default function/class Name" → bare declaration, returning name
+function prepareCode(raw) {
+  let code = raw.replace(/^import\s+[\s\S]*?from\s+['"][^'"]+['"]\s*;?\s*$/gm, '').trim();
+  let componentName = null;
+  code = code.replace(/export\s+default\s+function\s+(\w+)/, (_, n) => { componentName = n; return 'function ' + n; });
+  if (!componentName) {
+    code = code.replace(/export\s+default\s+class\s+(\w+)/, (_, n) => { componentName = n; return 'class ' + n; });
+  }
+  if (!componentName) {
+    const m = code.match(/export\s+default\s+(\w+)/);
+    if (m) { componentName = m[1]; code = code.replace(/export\s+default\s+\w+\s*;?/, ''); }
+  }
+  return { code, componentName };
+}
+
+function buildPreviewHTML(rawCode, cssVars) {
+  const { code, componentName } = prepareCode(rawCode);
+  const renderLine = componentName
+    ? `ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(${componentName}));`
+    : `document.getElementById('root').textContent = 'Preview unavailable';`;
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -156,20 +175,19 @@ function buildPreviewHTML(code, cssVars) {
   :root { ${cssVars} }
   body { margin: 0; padding: 16px; background: var(--color-bg); font-family: var(--font-body); }
 </style>
-<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js" crossorigin></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin><\/script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin><\/script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
+<script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js" crossorigin><\/script>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel" data-presets="react">
-const { TrendingUp, TrendingDown, DollarSign, Check, ArrowRight, Play, LayoutDashboard, BarChart2, Box, Settings } = LucideReact;
+const { TrendingUp, TrendingDown, DollarSign, Check, ArrowRight, Play,
+  LayoutDashboard, BarChart2, Box, Settings, ChevronDown, ChevronRight } = LucideReact;
 ${code}
-const C = exports?.default || window?.MetricCard || window?.SidebarNav || window?.DataTableCard || window?.HeroSection || window?.PricingCard || (() => React.createElement('div', null, 'Component'));
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(C));
-</script>
+${renderLine}
+<\/script>
 </body>
 </html>`;
 }

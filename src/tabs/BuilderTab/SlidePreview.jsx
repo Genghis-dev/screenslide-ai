@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Send, Copy, Download } from 'lucide-react';
 import { useTokenStore } from '../../stores/tokenStore';
 import { tokensToCSSVars } from '../../utils/tokenResolver';
@@ -9,8 +9,22 @@ const SLIDE_HEIGHT = 720;
 
 export default function SlidePreview({ slide, slideNumber, totalSlides }) {
   const containerRef = useRef(null);
+  const iframeRef = useRef(null);
   const tokens = useTokenStore((s) => s.tokens);
   const cssVars = tokensToCSSVars(tokens);
+
+  // Scale the 1280×720 iframe to fill its container
+  useEffect(() => {
+    const update = () => {
+      if (!containerRef.current || !iframeRef.current) return;
+      const scale = containerRef.current.clientWidth / SLIDE_WIDTH;
+      iframeRef.current.style.transform = `scale(${scale})`;
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    if (containerRef.current) ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, []);
 
   const handleCopyJSX = () => {
     if (slide?.jsx) navigator.clipboard.writeText(slide.jsx);
@@ -28,6 +42,7 @@ export default function SlidePreview({ slide, slideNumber, totalSlides }) {
     URL.revokeObjectURL(url);
   };
 
+  const fallbackJsx = `<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'var(--color-text-muted)',fontFamily:'sans-serif',fontSize:'1.5rem'}}>Generating slide ${slideNumber}…</div>`;
   const slideSrcDoc = `<!DOCTYPE html>
 <html>
 <head>
@@ -37,10 +52,10 @@ export default function SlidePreview({ slide, slideNumber, totalSlides }) {
   body { width: ${SLIDE_WIDTH}px; height: ${SLIDE_HEIGHT}px; overflow: hidden; background: var(--color-bg); }
   #slide { width: 100%; height: 100%; }
 </style>
-<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js" crossorigin></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin><\/script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin><\/script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
+<script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js" crossorigin><\/script>
 </head>
 <body>
 <div id="slide"></div>
@@ -48,12 +63,11 @@ export default function SlidePreview({ slide, slideNumber, totalSlides }) {
 const { TrendingUp, TrendingDown, DollarSign, Check, ArrowRight, Play, Sparkles } = LucideReact;
 function SlideContent() {
   return (
-    ${slide?.jsx || `<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'var(--color-text-muted)',fontFamily:'var(--font-body)'}}>Slide ${slideNumber}</div>`}
+    ${slide?.jsx || fallbackJsx}
   );
 }
-const root = ReactDOM.createRoot(document.getElementById('slide'));
-root.render(React.createElement(SlideContent));
-</script>
+ReactDOM.createRoot(document.getElementById('slide')).render(React.createElement(SlideContent));
+<\/script>
 </body>
 </html>`;
 
@@ -69,19 +83,19 @@ root.render(React.createElement(SlideContent));
             style={{ position: 'absolute', inset: 0 }}
           >
             <iframe
+              ref={iframeRef}
               srcDoc={slideSrcDoc}
               style={{
                 width: `${SLIDE_WIDTH}px`,
                 height: `${SLIDE_HEIGHT}px`,
                 border: 'none',
                 transformOrigin: 'top left',
-                transform: 'scale(var(--slide-scale, 0.5))',
+                transform: 'scale(0.5)',
               }}
               title={`Slide ${slideNumber}`}
               sandbox="allow-scripts"
             />
           </div>
-          <ScaleIframe containerId={`slide-${slideNumber}`} />
         </div>
 
         {/* Slide number badge */}
@@ -117,18 +131,3 @@ const actionBtn = {
   display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'var(--font-body)',
 };
 
-// Injects --slide-scale CSS variable based on container width
-function ScaleIframe({ containerId }) {
-  React.useEffect(() => {
-    const update = () => {
-      const el = document.getElementById(containerId);
-      if (!el) return;
-      const scale = el.clientWidth / 1280;
-      el.style.setProperty('--slide-scale', scale);
-    };
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, [containerId]);
-  return null;
-}

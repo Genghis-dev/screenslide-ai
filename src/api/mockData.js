@@ -711,4 +711,90 @@ export const mockComposedSlides = [
   </div>
 </div>`,
   },
+  {
+    slideNumber: 3,
+    type: 'two-column',
+    jsx: `<div style={{height:'100%',background:'var(--color-bg)',display:'grid',gridTemplateColumns:'1fr 1fr',overflow:'hidden'}}>
+  <div style={{padding:'64px 48px',display:'flex',flexDirection:'column',justifyContent:'center',borderRight:'1px solid var(--color-border)'}}>
+    <div style={{fontFamily:'var(--font-body)',fontSize:'0.85rem',letterSpacing:'0.15em',color:'var(--color-primary)',textTransform:'uppercase',marginBottom:'16px'}}>How It Works</div>
+    <h2 style={{fontFamily:'var(--font-heading)',fontSize:'2.8rem',fontWeight:800,color:'var(--color-text)',lineHeight:1.1,margin:'0 0 32px'}}>Four steps to your first slide deck</h2>
+    {[
+      {num:'01',title:'Upload Screenshots',desc:'Drop in your UI screenshots — PNG, JPG, or WEBP'},
+      {num:'02',title:'AI Extracts Design System',desc:'Gemini Vision pulls colors, fonts, spacing, and components'},
+      {num:'03',title:'Paste Your Content',desc:'Add your slide text in any format — structured or freeform'},
+      {num:'04',title:'Get Branded Slides',desc:'Fully designed deck ready to send to Figma or export'},
+    ].map(step=>(
+      <div key={step.num} style={{display:'flex',gap:'16px',marginBottom:'20px',alignItems:'flex-start'}}>
+        <div style={{fontFamily:'var(--font-heading)',fontSize:'1.5rem',fontWeight:800,color:'var(--color-primary)',opacity:0.4,lineHeight:1,minWidth:'36px'}}>{step.num}</div>
+        <div>
+          <div style={{fontFamily:'var(--font-heading)',fontWeight:700,color:'var(--color-text)',marginBottom:'4px'}}>{step.title}</div>
+          <div style={{fontFamily:'var(--font-body)',fontSize:'0.875rem',color:'var(--color-text-muted)'}}>{step.desc}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+  <div style={{padding:'48px',display:'flex',flexDirection:'column',justifyContent:'center',gap:'12px',background:'rgba(255,255,255,0.02)'}}>
+    {[
+      {icon:'📸',label:'Screenshot uploaded',done:true},
+      {icon:'🎨',label:'14 design tokens extracted',done:true},
+      {icon:'⚡',label:'5 components generated',done:true},
+      {icon:'✨',label:'Building slide deck…',done:false},
+    ].map((item,i)=>(
+      <div key={i} style={{display:'flex',alignItems:'center',gap:'12px',background:'var(--color-surface)',border:'1px solid var(--color-border)',borderRadius:'var(--radius)',padding:'16px 20px'}}>
+        <span style={{fontSize:'1.2rem'}}>{item.icon}</span>
+        <span style={{fontFamily:'var(--font-body)',color:item.done?'var(--color-text)':'var(--color-text-muted)',flex:1}}>{item.label}</span>
+        <span style={{color:item.done?'#10B981':'var(--color-primary)',fontSize:'0.9rem',fontWeight:600}}>{item.done?'✓':'…'}</span>
+      </div>
+    ))}
+  </div>
+</div>`,
+  },
+  {
+    slideNumber: 4,
+    type: 'content',
+    jsx: `<div style={{height:'100%',background:'var(--color-bg)',display:'flex',flexDirection:'column',padding:'64px',justifyContent:'center'}}>
+  <div style={{fontFamily:'var(--font-body)',fontSize:'0.85rem',letterSpacing:'0.15em',color:'var(--color-accent)',textTransform:'uppercase',marginBottom:'16px'}}>Built for Design Teams</div>
+  <h2 style={{fontFamily:'var(--font-heading)',fontSize:'2.8rem',fontWeight:800,color:'var(--color-text)',margin:'0 0 48px',lineHeight:1.1}}>Everything you need,<br/>nothing you don't.</h2>
+  <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'20px',maxWidth:'900px'}}>
+    {[
+      {title:'Token Extraction',desc:'Colors, fonts, spacing — pulled directly from your screenshots',icon:'🎨'},
+      {title:'Component Library',desc:'Every UI pattern identified and turned into reusable React code',icon:'⚡'},
+      {title:'AI Slide Structure',desc:'Drop in your content, AI figures out the optimal deck layout',icon:'🤖'},
+      {title:'Figma Export',desc:'One click to push any slide into your Figma workspace',icon:'🎯'},
+      {title:'Real-time Editing',desc:'Change tokens, see every slide update instantly',icon:'⚡'},
+      {title:'Zero lock-in',desc:'Export clean JSX or standalone HTML — your code, your way',icon:'🔓'},
+    ].map(f=>(
+      <div key={f.title} style={{display:'flex',gap:'16px',padding:'20px',background:'var(--color-surface)',border:'1px solid var(--color-border)',borderRadius:'var(--radius)',alignItems:'flex-start'}}>
+        <div style={{fontSize:'1.3rem',lineHeight:1}}>{f.icon}</div>
+        <div>
+          <div style={{fontFamily:'var(--font-heading)',fontWeight:700,color:'var(--color-text)',marginBottom:'4px',fontSize:'0.95rem'}}>{f.title}</div>
+          <div style={{fontFamily:'var(--font-body)',fontSize:'0.8rem',color:'var(--color-text-muted)',lineHeight:1.5}}>{f.desc}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>`,
+  },
+  {
+    slideNumber: 5,
+    type: 'closing',
+    jsx: `<div style={{height:'100%',background:'linear-gradient(135deg,#0F172A 0%,#1e1b4b 50%,#0F172A 100%)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',textAlign:'center',padding:'60px',position:'relative',overflow:'hidden'}}>
+  <div style={{position:'absolute',top:'-100px',right:'-100px',width:'400px',height:'400px',borderRadius:'50%',background:'rgba(99,102,241,0.08)',pointerEvents:'none'}}/>
+  <div style={{position:'absolute',bottom:'-80px',left:'-80px',width:'300px',height:'300px',borderRadius:'50%',background:'rgba(14,165,233,0.06)',pointerEvents:'none'}}/>
+  <div style={{fontFamily:'var(--font-body)',fontSize:'0.85rem',letterSpacing:'0.2em',color:'var(--color-primary)',textTransform:'uppercase',marginBottom:'24px'}}>Get Started Today</div>
+  <h1 style={{fontFamily:'var(--font-heading)',fontSize:'3.5rem',fontWeight:800,color:'var(--color-text)',margin:'0 0 20px',lineHeight:1.1,maxWidth:'700px'}}>Ready to transform your design workflow?</h1>
+  <p style={{fontFamily:'var(--font-body)',fontSize:'1.2rem',color:'var(--color-text-muted)',margin:'0 0 48px',maxWidth:'500px',lineHeight:1.6}}>Join 10,000+ teams already using ScreenSlide AI. No credit card required.</p>
+  <div style={{display:'flex',gap:'16px',alignItems:'center'}}>
+    <button style={{background:'var(--color-primary)',color:'#fff',border:'none',borderRadius:'var(--radius)',padding:'18px 48px',fontSize:'1.1rem',fontWeight:700,cursor:'pointer'}}>Start free trial</button>
+    <button style={{background:'transparent',color:'var(--color-text-muted)',border:'1px solid var(--color-border)',borderRadius:'var(--radius)',padding:'18px 32px',fontSize:'1rem',cursor:'pointer'}}>See pricing</button>
+  </div>
+  <div style={{marginTop:'48px',display:'flex',gap:'40px'}}>
+    {['No credit card','Cancel anytime','SOC2 compliant'].map(t=>(
+      <div key={t} style={{display:'flex',alignItems:'center',gap:'8px',color:'var(--color-text-muted)',fontSize:'0.875rem',fontFamily:'var(--font-body)'}}>
+        <span style={{color:'#10B981'}}>✓</span>{t}
+      </div>
+    ))}
+  </div>
+</div>`,
+  },
 ];

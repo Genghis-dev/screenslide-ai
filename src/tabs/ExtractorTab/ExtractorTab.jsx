@@ -11,6 +11,7 @@ import { mergeTokens } from '../../utils/tokenResolver';
 
 export default function ExtractorTab() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzingProgress, setAnalyzingProgress] = useState([]); // [{name, status}]
   const [analyzingIds, setAnalyzingIds] = useState(new Set());
   const [analyzed, setAnalyzed] = useState(false);
   const [error, setError] = useState(null);
@@ -21,30 +22,27 @@ export default function ExtractorTab() {
   const handleAnalyze = async (files) => {
     setIsAnalyzing(true);
     setError(null);
+    setAnalyzingProgress(files.map((f) => ({ name: f.name, status: 'pending' })));
+
     try {
-      const results = await Promise.all(
-        files.map(({ base64, mimeType, index }) =>
-          analyzeScreenshot(base64, mimeType, index)
-        )
-      );
-
-      // Merge tokens
-      const allTokens = results.map((r) => r.tokens);
-      const merged = mergeTokens(allTokens);
-      setTokens(merged);
-      results.forEach((r) => addRawScreenshotTokens(r.tokens));
-
-      // Collect components (deduplicated by id)
+      const allTokens = [];
       const seen = new Set();
-      results.forEach((r) => {
-        r.components?.forEach((comp) => {
-          if (!seen.has(comp.id)) {
-            seen.add(comp.id);
-            addComponent(comp);
-          }
-        });
-      });
 
+      for (let i = 0; i < files.length; i++) {
+        const { base64, mimeType, index, name } = files[i];
+        setAnalyzingProgress((prev) => prev.map((p, j) => j === i ? { ...p, status: 'analyzing' } : p));
+
+        const result = await analyzeScreenshot(base64, mimeType, index);
+
+        allTokens.push(result.tokens);
+        addRawScreenshotTokens(result.tokens);
+        result.components?.forEach((comp) => {
+          if (!seen.has(comp.id)) { seen.add(comp.id); addComponent(comp); }
+        });
+        setAnalyzingProgress((prev) => prev.map((p, j) => j === i ? { ...p, status: 'done', count: result.components?.length || 0 } : p));
+      }
+
+      setTokens(mergeTokens(allTokens));
       setAnalyzed(true);
     } catch (err) {
       setError(err.message);
@@ -87,6 +85,31 @@ export default function ExtractorTab() {
         </div>
 
         <ScreenshotUploader onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+
+        {/* Per-screenshot progress */}
+        {analyzingProgress.length > 0 && isAnalyzing && (
+          <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {analyzingProgress.map((p, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: '12px',
+                background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius)', padding: '10px 14px',
+              }}>
+                <div style={{
+                  width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0,
+                  background: p.status === 'done' ? '#10B981' : p.status === 'analyzing' ? 'var(--color-primary)' : 'var(--color-border)',
+                  boxShadow: p.status === 'analyzing' ? '0 0 6px var(--color-primary)' : 'none',
+                }} />
+                <span style={{ flex: 1, fontSize: '0.85rem', color: 'var(--color-text)', fontFamily: 'var(--font-body)' }}>
+                  {p.name}
+                </span>
+                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>
+                  {p.status === 'done' ? `✓ ${p.count} components found` : p.status === 'analyzing' ? 'Analyzing…' : 'Waiting'}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {error && (
           <div style={{
