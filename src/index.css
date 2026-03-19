@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #6366F1;
+  --color-secondary: #0EA5E9;
+  --color-accent: #F59E0B;
+  --color-bg: #0F172A;
+  --color-surface: #1E293B;
+  --color-text: #F8FAFC;
+  --color-text-muted: #94A3B8;
+  --color-border: #334155;
+  --font-heading: 'DM Sans', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --radius: 8px;
+  --spacing-unit: 8px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
