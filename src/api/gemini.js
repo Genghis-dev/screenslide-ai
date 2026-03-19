@@ -7,7 +7,7 @@ import {
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
-const MODEL = 'gemini-2.0-flash';
+const MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash';
 
 const DEMO_MODE = !API_KEY;
 let forceDemo = DEMO_MODE;
